@@ -3,7 +3,6 @@ import { CartManagerMongo } from "../../dao/models/controllers/CartManagerMongo.
 import { ProductManagerMongo } from "../../dao/models/controllers/ProductManagerMongo.js";
 import productModel from "../../dao/models/product.model.js";
 
-
 const cartRouter = Router()
 const c = new CartManagerMongo()
 const p = new ProductManagerMongo()
@@ -37,9 +36,6 @@ cartRouter.get("/:cid", async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
-
-
-
 
 cartRouter.post ("/", async (req, res) => {
     let result = await c.addCart ()
@@ -99,6 +95,5 @@ cartRouter.delete("/:cid", async(req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
-
 
 export default cartRouter

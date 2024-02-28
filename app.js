@@ -9,7 +9,6 @@ import handlebars from 'express-handlebars';
 import {Server} from 'socket.io';
 import path from 'path';
 
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -28,12 +27,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + "/public"))
 
-
 //Routes
 app.use("/" ,router)
 app.use('/api/carts', cartRouter);
 app.use('/api/chat', chatRouter);
-
 
 const httpServer = app.listen(port, () => console.log("servidor con express"))
 

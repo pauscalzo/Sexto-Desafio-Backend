@@ -33,6 +33,7 @@ export class CartManagerMongo {
         };
         return await this.model.create(newCart)
     }
+
     //Agregar un determinado producto a un determinado carrito
     async addToCart(cid, pid) {
         try {
@@ -69,6 +70,7 @@ export class CartManagerMongo {
         }
     }
     
+    //Actualizar un carrito
     async updateCart(cart) {
         try {
             await this.model.findByIdAndUpdate(cart._id, cart);
@@ -104,7 +106,6 @@ export class CartManagerMongo {
     }
 
     //Editar un determinado producto de un determinado carrito
-
     async updateProductQuantity(cid, pid, quantity) {
         try {
             const cart = await this.model.findById(cid);
@@ -129,6 +130,7 @@ export class CartManagerMongo {
         }
     }
 
+    //Borrar todos los productos de un carrito
     async deleteAllProducts(cid) {
         try {
             const cart = await this.model.findById(cid);
@@ -146,9 +148,6 @@ export class CartManagerMongo {
             throw error;
         }
     }
-    
-
-
 }
 
 

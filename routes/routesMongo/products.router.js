@@ -5,6 +5,10 @@ const router = express.Router()
 
 const p = new ProductManagerMongo();
 
+router.get('/', (req, res) => {
+    res.redirect('/products?page=1');
+});
+
 router.get('/products', async (req, res) => {
     try {
         const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -20,19 +24,15 @@ router.get('/products', async (req, res) => {
         console.log("Has Prev Page:", result.hasPrevPage);
         console.log("Has Next Page:", result.hasNextPage);
 
-        result.prevLink = result.hasPrevPage ? `http://localhost:8080/products?page=${result.prevPage}` : '';
-        result.nextLink = result.hasNextPage ? `http://localhost:8080/products?page=${result.nextPage}` : '';
+        result.prevLink = result.hasPrevPage ? `/products?page=${result.prevPage}` : '';
+        result.nextLink = result.hasNextPage ? `/products?page=${result.nextPage}` : '';
         result.isValid = !(page <= 0 || page > result.totalPages)
 
-        res.render('products',
-            result);
+        res.render('products', { products: result.docs, ...result });
     } catch (error) {
         console.error("Error al obtener los productos:", error);
     }
 });
-
-
-
 
 router.get('/:pid', async (req, res) => {
     let { pid } = req.params;
