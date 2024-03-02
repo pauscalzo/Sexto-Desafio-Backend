@@ -36,7 +36,6 @@ router.post("/login", async (req, res) => {
             return res.redirect("/signup");
         }
         
-        // Comparar contraseñas directamente
         if (password !== user.password) {
             return res.status(400).json({ message: "La contraseña no es válida" });
         }
