@@ -8,6 +8,10 @@ import { chatRouter, chatMM } from "./routes/routesMongo/chatMongo.router.js"
 import handlebars from 'express-handlebars';
 import {Server} from 'socket.io';
 import path from 'path';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import sessionRouter from "./routes/routesMongo/sessions.router.js";
+
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -27,17 +31,30 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + "/public"))
 
+//LogIn
+
+app.use (session ({
+    store: new MongoStore ({
+        mongoUrl: "mongodb+srv://pauscalzo:Eloisa2014Amanda2017@clustercoder.wvj1vet.mongodb.net/ecommerce?retryWrites=true&w=majority"
+    }),
+    secret: "12345678",
+    resave: false,
+    saveUninitialized: false,
+}))
+
 //Routes
 app.use("/" ,router)
-app.use('/api/carts', cartRouter);
+app.use('/carts', cartRouter);
 app.use('/api/chat', chatRouter);
+app.use("/api/sessions", sessionRouter);
+//app.use("/api/sessions", userRouter);
+//app.use("/api/sessions", loginRouter);
 
 const httpServer = app.listen(port, () => console.log("servidor con express"))
 
+
 //Socket.io chat
-
 const io = new Server(httpServer);
-
 const users = {}
 
 io.on("connection", (socket)=>{
@@ -64,7 +81,6 @@ io.on("connection", (socket)=>{
     })
 })
 
-
 const environment = async () => {
     await mongoose.connect("mongodb+srv://pauscalzo:Eloisa2014Amanda2017@clustercoder.wvj1vet.mongodb.net/ecommerce?retryWrites=true&w=majority")
         .then (() => {
@@ -76,4 +92,6 @@ const environment = async () => {
 }
 
 environment ();
+
+
 

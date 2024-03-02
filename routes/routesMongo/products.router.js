@@ -9,7 +9,25 @@ router.get('/', (req, res) => {
     res.redirect('/products?page=1');
 });
 
+router.get("/login", (req, res) => {
+    if (req.session.user) {
+        return res.redirect("/products")
+    }
+    res.render("login");
+});
+
+router.get("/signup", (req, res) => {
+    if (req.session.user) {
+        return res.redirect("/products")
+    }
+    res.render("signup");
+});
+
 router.get('/products', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect("/login")
+    }
+    console.log(req.session.user)
     try {
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -18,17 +36,14 @@ router.get('/products', async (req, res) => {
         const status = req.query.status ? req.query.status : null;
 
         const result = await p.getProducts(page, limit, sortOrder, category, status);
-
-        console.log("Total Pages:", result.totalPages);
-        console.log("Current Page:", result.page);
-        console.log("Has Prev Page:", result.hasPrevPage);
-        console.log("Has Next Page:", result.hasNextPage);
+        const user = req.session.user;
 
         result.prevLink = result.hasPrevPage ? `/products?page=${result.prevPage}` : '';
         result.nextLink = result.hasNextPage ? `/products?page=${result.nextPage}` : '';
         result.isValid = !(page <= 0 || page > result.totalPages)
 
-        res.render('products', { products: result.docs, ...result });
+        res.render('products', { products: result.docs, user, ...result });
+
     } catch (error) {
         console.error("Error al obtener los productos:", error);
     }

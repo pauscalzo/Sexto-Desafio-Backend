@@ -1,3 +1,9 @@
+{{#if user}}
+    <h2>Bienvenido, {{user.first_name}} ({{user.email}})</h2>
+{{/if}}
+
+<button><a href="/api/sessions/signout">Cerrar Sesion</a></button>
+
 <h1>Lista Productos</h1>
 
 <table>
