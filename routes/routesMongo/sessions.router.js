@@ -1,58 +1,51 @@
 import { Router } from "express";
-import { UserManagerMongo } from "../../dao/models/controllers/UserManagerMongo.js"
+import passport from "passport";
 
-const router = Router()
+const router = Router();
 
-const u = new UserManagerMongo();
+//sign up and login passport local
 
-router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
-
-    if (!first_name || !last_name || !email || !password) {
-        return res.status(400).json({ message: "Todos los campos son requeridos" });   
-    } 
-
-    try {
-        const createdUser = await u.createOne(req.body);
-        res.redirect("/login");
-    } catch (error) {
-        res.status(500).json({ error }); 
-    }
+router.post("/signup", passport.authenticate("signup", { 
+    failureRedirect: "/failregister" 
+}), async (req, res) => {
+    res.redirect("/login"); 
 });
 
+router.get("/failregister", async (req, res) => {
+    console.log("Registro fallido")
+    res.status(400).send({ error: "Fallo en el registro" })
+});
 
-// 
-
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: "Todos los campos son requeridos" });
-    }
-
-    try {
-        const user = await u.findByEmail(email);
-        if (!user) {
-            return res.redirect("/signup");
+router.post("/login", passport.authenticate("login", {
+    failureRedirect: "/faillogin"}), async (req, res) => {
+        if (!req.user) return res.status(400).send({status:"error", error:"invalid credentials"})
+        req.session.user = {
+            first_name : req.user.first_name,
+            last_name : req.user.last_name,
+            email : req.user.email
         }
-        
-        if (password !== user.password) {
-            return res.status(400).json({ message: "La contraseña no es válida" });
-        }
-
-        const sessionInfo =
-        email === "adminCoder@coder.com" && password === "adminCod3r123"
-            ? {email, first_name: user.first_name, isAdmin: true}
-            : {email, first_name: user.first_name, isAdmin: false}
-
-        req.session.user = sessionInfo;
         res.redirect("/products");
-
-    } catch (error) {
-        console.error("Error al procesar la solicitud:", error); 
-        res.status(500).json({ error });
-    }
 });
+
+router.get("/faillogin", async (req, res) => {
+    console.log("Login fallido")
+    res.status(400).send({ error: "Fallo en el login" })
+});
+
+//sign up and login github
+
+router.get(
+    "/github",
+    passport.authenticate("github", { scope: ["user:email"]})
+)
+
+router.get(
+    "/callback",
+    passport.authenticate("github", { failureRedirect: '/login' }), async (req,res)=>{
+        req.session.user = req.user
+        res.redirect("/products");
+    })
+
 
 router.get("/signout", async (req, res) => {
     req.session.destroy(() => {

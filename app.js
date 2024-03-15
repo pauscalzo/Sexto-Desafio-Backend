@@ -1,4 +1,4 @@
-import  express from 'express';
+import express from 'express';
 import mongoose from "mongoose";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -10,8 +10,9 @@ import {Server} from 'socket.io';
 import path from 'path';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import sessionRouter from "./routes/routesMongo/sessions.router.js";
-
+import sessionRouter from "./routes/routesMongo/sessions.router.js"; 
+import passport from 'passport';
+import initializePassport from './config/passport.config.js';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -26,32 +27,56 @@ app.set('view engine', "handlebars")
 app.use(express.static(__dirname + '/views'))
 app.use(express.static(path.join(__dirname, "public")))
 
-//Midlewares
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(express.static(__dirname + "/public"))
+// Middleware para manejar solicitudes JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-//LogIn
-
-app.use (session ({
-    store: new MongoStore ({
-        mongoUrl: "mongodb+srv://pauscalzo:Eloisa2014Amanda2017@clustercoder.wvj1vet.mongodb.net/ecommerce?retryWrites=true&w=majority"
+// Middleware de sesión con Passport
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: "mongodb+srv://pauscalzo:Eloisa2014Amanda2017@clustercoder.wvj1vet.mongodb.net/ecommerce?retryWrites=true&w=majority",
+        ttl: 60 * 60 
     }),
     secret: "12345678",
     resave: false,
-    saveUninitialized: false,
-}))
+    saveUninitialized: false
+}));
+
+// Configuración de Passport
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Endpoint para registrar un nuevo usuario
+app.post("/signup", passport.authenticate("signup", {
+    successRedirect: "/products",
+    failureRedirect: "/failregister"
+}));
+
+// Endpoint para iniciar sesión
+app.post("/login", passport.authenticate("login", {
+    successRedirect: "/products",
+    failureRedirect: "/login",
+    failureFlash: true
+}));
+
+// Endpoint para cerrar sesión
+app.get("/logout", (req, res) => {
+    req.logout();
+    res.redirect("/login");
+});
+
+// Ruta para las sesiones
+app.use("/api/sessions", sessionRouter);
 
 //Routes
-app.use("/" ,router)
+app.use("/", router)
 app.use('/carts', cartRouter);
 app.use('/api/chat', chatRouter);
-app.use("/api/sessions", sessionRouter);
-//app.use("/api/sessions", userRouter);
-//app.use("/api/sessions", loginRouter);
+app.use("/api/sessions", sessionRouter); 
+app.use("/signup", router); 
 
 const httpServer = app.listen(port, () => console.log("servidor con express"))
-
 
 //Socket.io chat
 const io = new Server(httpServer);
@@ -92,6 +117,4 @@ const environment = async () => {
 }
 
 environment ();
-
-
 
