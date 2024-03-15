@@ -2,7 +2,7 @@ import passport from "passport";
 import passportLocal from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import User from "../dao/models/user.model.js";
-import utils from "../../utils.js";
+import utils from "../utils.js";
 
 const LocalStrategy = passportLocal.Strategy;
 
