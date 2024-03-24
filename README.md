@@ -1,111 +1,69 @@
-
-# Ecommerce Back End
+# Segunda Práctica Integradora
 
 Voy a ir punto por punto mostrando lo solicitado:
 
-### 1) Recibir por query params un limit (opcional), si no recibe el límite será 10.
+### 1) Creación de un modelo User que cuente con los siguientes campos: first_name, last_name, email, age, password, cart y role (default user). Para el Sigup utilicé passport local y para el Login passport JWT.
+
+### 2) Desarrollar una estrategia current para extraer la cookie que contiene el token y poder acceder a la ruta /current.
 
 
 
 
 #### Capturas desde el Navegador
 
-a - si hay límite:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20123814.png)
+a - SignUp para registrarse:
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20183810.png)
 
-b - si no hay límite, se muestran 10:
+b - Una vez registrado con éxito redirige al login:
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20125511.png)
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20183830.png)
+
+c - Login realizado con éxito:
+
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20183841.png)
+
+d - Vista en el navegador de current:
+
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20183905.png)
+
+e - Por consola imprimo el objeto del usuario creado. Puede observarse la contraseña hasheada, el cartId creado y el role por defecto user:
+
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184017.png)
+
+f - También por consola imprimo el token y cómo se consulta el mismo desde las cookies para acceder a la ruta /current:
+
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184043.png)
+
+g - Por último vemos como el usuario se creo con éxito en la base de datos:
+
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184142.png)
 
 
-### 2) Recibir por query params una page (opcional), si no recibe el límite será la 1.
 
-a - page # 1:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20130054.png)
 
-b - page # 2:
+### 2) Capturas desde Postman.
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20125940.png)
+a - SignUp para registrarse:
 
-c - sin especificar page:
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184233.png)
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20125511.png)
+b - Login:
 
-### 3) Recibir por query params un sort (opcional), que ordene de manera ascendente y descendente por precio.
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184258.png)
 
-a - ascendente:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20130508.png)
+c - Ruta /current:
 
-b - descendente:
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184314.png)
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20130753.png)
+d - Podemos ver la cookie con el token de este segundo usuario creado con Postman:
 
-### 4) Recibir por query params un query (opcional), por categoría y por disponibilidad.
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20190044.png)
 
-a - por categoría:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133041.png)
+e - Vemos como también se crea con éxito en la base de datos:
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133158.png)
+![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-03-24%20184337.png)
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133314.png)
 
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133419.png)
-
-b - por disponibilidad:
-
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133533.png)
-
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133628.png)
-
-### 5) Tambien sumar orden por precio a lo anterior.
-
-a - categoría playmobil precio ascendente:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20133921.png)
-
-b - status disponible precio descendente:
-
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20134037.png)
-
-### 6) Modificar el código para incorporar Populate en el método de agregar al carrito.
-
-a - En postman muestro respuesta trás aplicar el método POST en la ruta /carts/cid/pid:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20134801.png)
-
-b - En la base de datos corroboro que el producto ha sido agregado al carrito con éxito:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20135142.png)
-
-### 7) Vista de Carrito con los productos del carrito a través de la ruta api/carts/:cid.
-
-a - En el navegador:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20135439.png)
-
-### 8) Actualizar la cantidad de un producto en el carrito por req.body a través de la ruta /carts/:cid/products/:pid con PUT.
-
-a - En Postman:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20135852.png)
-
-b - En la base de datos corroboro que el producto ha sido editado con éxito:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20140452.png)
-
-### 9) Eliminar un producto del carrito con DELETE a través de la ruta /carts/:cid/products/:pid.
-
-a - En Postman:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20140751.png)
-
-b - En la base de datos corroboro que el producto ha sido eliminado con éxito:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20140905.png)
-
-### 10) Eliminar todos los productos del carrito con DELETE a través de la ruta /carts/:cid/.
-
-a - En Postman:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20141510.png)
-
-b - En la base de datos corroboro que el carrito esta vacío:
-![App Screenshot](https://www.entropiadigital.com.ar/IMG/Captura%20de%20pantalla%202024-02-28%20141624.png)
-
-### 11) El método para actualizar el carrito solicitado en la consigna de la entrega lo utilicé en los métodos de PUT y DELETE recién mostrados para actualizar el carrito. El método se encuentra en la línea 74 del archivo CartManagerMongo.js y se encuentra aplicado en las líneas 99, 123 y 143 del mismo archivo.
-
-### 12) En capturas anteriores se pudo ver que la paginación esta agregada, al dirigirse a /products se puede navegar entre la página anterior y la siguiente.
 
 
 
