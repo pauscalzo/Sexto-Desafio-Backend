@@ -12,7 +12,11 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import sessionRouter from "./routes/routesMongo/sessions.router.js"; 
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import initializePassport from './config/passport.config.js';
+import utils from './utils.js';
+
+const { passportCall } = utils;
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -29,6 +33,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 // Middleware para manejar solicitudes JSON
 app.use(express.json());
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware de sesión con Passport
@@ -45,20 +50,32 @@ app.use(session({
 // Configuración de Passport
 initializePassport();
 app.use(passport.initialize());
-app.use(passport.session());
+
+
+// Agregar console.log para verificar la ejecución de las rutas y middlewares de autenticación
+app.use((req, res, next) => {
+    console.log(`Solicitud recibida: ${req.method} ${req.url}`);
+    next();
+});
+
+// Agregar console.log para verificar si las cookies se están enviando correctamente
+app.use((req, res, next) => {
+    console.log("Cookies:", req.cookies);
+    next();
+});
 
 // Endpoint para registrar un nuevo usuario
 app.post("/signup", passport.authenticate("signup", {
-    successRedirect: "/products",
+    successRedirect: "/login",
     failureRedirect: "/failregister"
 }));
 
 // Endpoint para iniciar sesión
 app.post("/login", passport.authenticate("login", {
-    successRedirect: "/products",
-    failureRedirect: "/login",
-    failureFlash: true
+    successRedirect: "/current",
+    failureRedirect: "/faillogin"
 }));
+
 
 // Endpoint para cerrar sesión
 app.get("/logout", (req, res) => {
@@ -73,8 +90,22 @@ app.use("/api/sessions", sessionRouter);
 app.use("/", router)
 app.use('/carts', cartRouter);
 app.use('/api/chat', chatRouter);
-app.use("/api/sessions", sessionRouter); 
-app.use("/signup", router); 
+
+// Rutas de autenticación
+app.get('/current', passportCall('login'), (req, res) => {
+    res.send(req.user);
+});
+
+// Manejo de errores para rutas de inicio de sesión fallidas
+app.get("/failregister", (req, res) => {
+    console.log("Registro fallido")
+    res.status(400).send({ error: "Fallo en el registro" })
+});
+
+app.get("/faillogin", (req, res) => {
+    console.log("Login fallido")
+    res.status(400).send({ error: "Fallo en el login" })
+});
 
 const httpServer = app.listen(port, () => console.log("servidor con express"))
 
@@ -117,4 +148,5 @@ const environment = async () => {
 }
 
 environment ();
+
 

@@ -1,10 +1,14 @@
 import { Router } from "express";
 import passport from "passport";
+import jwt from "jsonwebtoken";
+import utils from "../../utils.js";
+import User from "../../dao/models/user.model.js";
 
 const router = Router();
 
-//sign up and login passport local
+const { passportCall } = utils;
 
+// Sign up con passport local
 router.post("/signup", passport.authenticate("signup", { 
     failureRedirect: "/failregister" 
 }), async (req, res) => {
@@ -12,46 +16,64 @@ router.post("/signup", passport.authenticate("signup", {
 });
 
 router.get("/failregister", async (req, res) => {
-    console.log("Registro fallido")
-    res.status(400).send({ error: "Fallo en el registro" })
+    console.log("Registro fallido");
+    res.status(400).send({ error: "Fallo en el registro" });
 });
 
-router.post("/login", passport.authenticate("login", {
-    failureRedirect: "/faillogin"}), async (req, res) => {
-        if (!req.user) return res.status(400).send({status:"error", error:"invalid credentials"})
-        req.session.user = {
-            first_name : req.user.first_name,
-            last_name : req.user.last_name,
-            email : req.user.email
+// Login con passport JWT
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        let user = await User.findOne({ email });
+        console.log(user)
+        if (!user) {
+            return res
+                .status(401)
+                .send({ status: 'error', message: 'El usuario no existe' });
         }
-        res.redirect("/products");
+        const isValid = utils.isValidatePassword(user, password);
+        console.log(isValid)
+
+        if (!isValid) {
+            return res
+                .status(401)
+                .send({ status: "error", message: "La contraseña es incorrecta"});
+        }
+
+        const tokenUser = {
+            _id: user._id, // Asegúrate de incluir toda la información necesaria en el token
+            email: user.email,
+            name: user.first_name // Cambia a 'name' si 'first_name' es el nombre de usuario
+        }
+
+        const token = jwt.sign(tokenUser, "12345678", {expiresIn: "1d"});
+        console.log(token)
+
+        res
+            .cookie("coderCookieToken", token, {
+                maxAge: 60 * 60 * 1000 * 24,
+                httpOnly: true,
+            })
+            .send({status: "success", message: "logged"});
+    } catch (error) {
+        console.error(error); // Asegúrate de manejar los errores adecuadamente
+        res.status(500).send({ status: "error", message: "Error en el servidor" });
+    }
+});
+
+router.get("/current", passportCall("login"), (req, res) => {
+    res.send(req.user);
 });
 
 router.get("/faillogin", async (req, res) => {
-    console.log("Login fallido")
-    res.status(400).send({ error: "Fallo en el login" })
+    console.log("Login fallido");
+    res.status(400).send({ error: "Fallo en el login" });
 });
-
-//sign up and login github
-
-router.get(
-    "/github",
-    passport.authenticate("github", { scope: ["user:email"]})
-)
-
-router.get(
-    "/callback",
-    passport.authenticate("github", { failureRedirect: '/login' }), async (req,res)=>{
-        req.session.user = req.user
-        res.redirect("/products");
-    })
-
 
 router.get("/signout", async (req, res) => {
     req.session.destroy(() => {
-        res.redirect("/login")
-    })
+        res.redirect("/login");
+    });
 });
 
-
-export default router
+export default router;
